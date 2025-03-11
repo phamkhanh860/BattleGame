@@ -50,7 +50,6 @@
 			<Add directory="../SDL2_image-2.0.5/x86_64-w64-mingw32/lib" />
 			<Add directory="../SDL2_ttf-2.24.0/x86_64-w64-mingw32/lib" />
 		</Linker>
-		<Unit filename="Untitled1414.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
