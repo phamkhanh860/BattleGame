@@ -20,6 +20,7 @@ SDL_Texture* tileTexture = nullptr;
 SDL_Texture* enemyTexture = nullptr;
 SDL_Texture* bulletTexture = nullptr;
 SDL_Texture* bossTexture = nullptr;
+SDL_Texture* nenTexture = nullptr;
 
 struct Player {
     float x, y;
@@ -74,46 +75,28 @@ void initialize() {
 
     // Tải các texture từ file PNG
     SDL_Surface* surface = IMG_Load("player1.png");
-    if (!surface) {
-        std::cerr << "Failed to load player texture: " << IMG_GetError() << std::endl;
-        exit(1);
-    }
     playerTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
     surface = IMG_Load("tile.png");
-    if (!surface) {
-        std::cerr << "Failed to load tile texture: " << IMG_GetError() << std::endl;
-        exit(1);
-    }
     tileTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
     surface = IMG_Load("enemy1.png");
-    if (!surface) {
-        std::cerr << "Failed to load enemy texture: " << IMG_GetError() << std::endl;
-        exit(1);
-    }
     enemyTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
     surface = IMG_Load("bullet.png"); // Thêm texture cho đạn
-    if (!surface) {
-        std::cerr << "Failed to load bullet texture: " << IMG_GetError() << std::endl;
-        exit(1);
-    }
     bulletTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
     surface = IMG_Load("boss1.png"); // Thêm texture cho boss
-    if (!surface) {
-        std::cerr << "Failed to load boss texture: " << IMG_GetError() << std::endl;
-        exit(1);
-    }
     bossTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
-
+    surface = IMG_Load("nen.png");
+    nenTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
     // Khởi tạo người chơi
     player.x = 80;
     player.y = 500;
@@ -185,7 +168,7 @@ void spawnEnemy() {
 
 void spawnBullet() {
     if (shoot) {
-        bullets.push_back({player.x + TILE_SIZE / 10, player.y + TILE_SIZE / 10, player.lastDirection * 1, true});
+        bullets.push_back({player.x + TILE_SIZE / 10, player.y + TILE_SIZE / 10, player.lastDirection * 15, true});
         shoot = false; // Reset trạng thái bắn
     }
 }
@@ -225,7 +208,7 @@ void updateBullets() {
         // Kiểm tra va chạm với boss
         if (bossSpawned && boss.active) {
             SDL_Rect bulletRect = {static_cast<int>(bullet.x), static_cast<int>(bullet.y), TILE_SIZE, TILE_SIZE};
-            SDL_Rect bossRect = {static_cast<int>(boss.x), static_cast<int>(boss.y), 100, 100};
+            SDL_Rect bossRect = {static_cast<int>(boss.x), static_cast<int>(boss.y), 200, 200};
 
             if (SDL_HasIntersection(&bulletRect, &bossRect)) {
                 bullet.active = false;
@@ -414,8 +397,11 @@ void update() {
 }
 
 void render() {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderClear(renderer);
+
+    SDL_Rect nenRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}; // Kích thước toàn màn hình
+    SDL_RenderCopy(renderer, nenTexture, nullptr, &nenRect);
+
 
     for (auto& tile : tiles) {
         SDL_Rect rect = {tile.x - camera.x, tile.y - camera.y, tile.w, tile.h};
@@ -454,6 +440,7 @@ void cleanup() {
     SDL_DestroyTexture(enemyTexture);
     SDL_DestroyTexture(bulletTexture);
     SDL_DestroyTexture(bossTexture);
+    SDL_DestroyTexture(nenTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
