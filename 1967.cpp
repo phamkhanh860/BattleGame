@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-
+#include <SDL_mixer.h>
 const int SCREEN_WIDTH = 4400;
 const int SCREEN_HEIGHT = 800;
 const int TILE_SIZE = 45;
@@ -22,6 +22,8 @@ SDL_Texture* bulletTexture = nullptr;
 SDL_Texture* bossTexture = nullptr;
 SDL_Texture* nenTexture = nullptr;
 
+Mix_Music* backgroundMusic = nullptr; // Âm thanh nền
+Mix_Chunk* shootSound = nullptr;
 struct Player {
     float x, y;
     float vx, vy;
@@ -68,8 +70,10 @@ int bossesKilled = 0;      // Đếm số lượng boss đã bị tiêu diệt
 SDL_Rect camera = {0, 0, CAMERA_WIDTH, CAMERA_HEIGHT};
 
 void initialize() {
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO); // Thêm SDL_INIT_AUDIO
     IMG_Init(IMG_INIT_PNG);
+    Mix_Init(MIX_INIT_MP3); // Khởi tạo SDL_mixer
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048); // Mở audio device
     window = SDL_CreateWindow("Platformer Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -97,6 +101,14 @@ void initialize() {
     surface = IMG_Load("nen.png");
     nenTexture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
+
+    backgroundMusic = Mix_LoadMUS("background.mp3");
+    // Tải âm thanh khi bắn đạn
+    shootSound = Mix_LoadWAV("shoot.wav");
+    // Phát âm thanh nền
+    if (backgroundMusic) {
+        Mix_PlayMusic(backgroundMusic, -1); // -1 để lặp vô hạn
+    }
     // Khởi tạo người chơi
     player.x = 80;
     player.y = 500;
@@ -158,9 +170,9 @@ void spawnEnemy() {
     if (!enemySpawnActive) return;
 
     Uint32 currentTime = SDL_GetTicks();
-    if (currentTime - lastEnemySpawnTime > 2000) {
-        enemies.push_back({3100 - TILE_SIZE, 180, -5, true});
-        enemies.push_back({1770, 180, 5, true});
+    if (currentTime - lastEnemySpawnTime > 1500) {
+        enemies.push_back({3100 - TILE_SIZE, 180, -4, true});
+        enemies.push_back({1770, 180, 4, true});
 
         lastEnemySpawnTime = currentTime;
     }
@@ -168,8 +180,11 @@ void spawnEnemy() {
 
 void spawnBullet() {
     if (shoot) {
-        bullets.push_back({player.x + TILE_SIZE / 10, player.y + TILE_SIZE / 10, player.lastDirection * 15, true});
+        bullets.push_back({player.x + TILE_SIZE / 10, player.y + TILE_SIZE / 10, player.lastDirection * 10, true});
         shoot = false; // Reset trạng thái bắn
+        if (shootSound) {
+            Mix_PlayChannel(-1, shootSound, 0);
+        }
     }
 }
 
@@ -285,7 +300,7 @@ void spawnBoss() {
     if (!bossSpawned) {
         boss.x = SCREEN_WIDTH - TILE_SIZE;
         boss.y = 410;
-        boss.vx = 7; // Tốc độ di chuyển của boss
+        boss.vx = 6; // Tốc độ di chuyển của boss
         boss.active = true;
         boss.health = 20; // Boss cần 20 viên đạn để chết
         bossSpawned = true;
@@ -427,7 +442,7 @@ void render() {
 
     // Render boss
     if (bossSpawned && boss.active) {
-        SDL_Rect bossRect = {static_cast<int>(boss.x - camera.x), static_cast<int>(boss.y - camera.y), 200, 200};
+        SDL_Rect bossRect = {static_cast<int>(boss.x - camera.x), static_cast<int>(boss.y - camera.y), 300, 200};
         SDL_RenderCopy(renderer, bossTexture, nullptr, &bossRect);
     }
 
@@ -442,6 +457,10 @@ void cleanup() {
     SDL_DestroyTexture(bossTexture);
     SDL_DestroyTexture(nenTexture);
     SDL_DestroyRenderer(renderer);
+
+    Mix_FreeMusic(backgroundMusic);
+    Mix_FreeChunk(shootSound);
+    Mix_CloseAudio();
     SDL_DestroyWindow(window);
     IMG_Quit();
     SDL_Quit();
