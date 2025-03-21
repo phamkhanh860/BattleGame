@@ -432,3 +432,14 @@
 	<SDL.h>
 	<SDL_mixer.h>
 
+1742487059 source:c:\emday\1967.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<iostream>
+	<vector>
+	<cstdlib>
+	<ctime>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	<sstream>
+
