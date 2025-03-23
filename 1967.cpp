@@ -130,7 +130,7 @@ void initialize() {
     player.vy = 0;
     player.onGround = false;
     player.lastDirection = 1; // Mặc định hướng ban đầu là sang phải
-    player.gravity = 0.4f;     // Khởi tạo trọng lực của người chơi
+    player.gravity = 0.35f;     // Khởi tạo trọng lực của người chơi
     tiles = {
         {0, 0, 4400, 110},{0, 480, 220, 300},{370, 420, 50, 400},{560, 380, 50, 400}, {780, 520, 430, 340},{1050, 480, 100, 80},
         {780, 410, 100, 30},{780, 520, 430, 340},{1300, 410, 50, 270},{1540, 530, 70, 240},{1540, 320, 50, 135},
@@ -157,7 +157,7 @@ void resetGame() {
     player.vy = 0;
     player.onGround = false;
     player.lastDirection = 1;
-    player.gravity = 0.4f;
+    player.gravity = 0.35f;
     boss.active = false;
     bossSpawned = false;
     bossesKilled = 0;
@@ -262,7 +262,7 @@ void updateBullets() {
                 break;
             }
         }
-        if (cnt == 10) {
+        if (cnt == 12) {
             tiles.pop_back();
             cnt = -99999;
         }
@@ -341,7 +341,7 @@ void spawnBoss() {
         boss.active = true;
         boss.health = 15;
         bossSpawned = true;
-        player.gravity = 0.1f;
+        player.gravity = 0.13f;
     }
 }
 void updateBoss() {
