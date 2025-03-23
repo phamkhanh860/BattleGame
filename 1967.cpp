@@ -225,9 +225,9 @@ void handleInput(SDL_Event& event) {
 void spawnEnemy() {
     if (!enemySpawnActive) return;
     Uint32 currentTime = SDL_GetTicks();
-    if (currentTime - lastEnemySpawnTime > 1500) {
-        enemies.push_back({3100 - TILE_SIZE, 180, -4, true});
-        enemies.push_back({1770, 180, 4, true});
+    if (currentTime - lastEnemySpawnTime > 1700) {
+        enemies.push_back({3100 - TILE_SIZE, 180, -3.5, true});
+        enemies.push_back({1770, 180, 3.5, true});
         lastEnemySpawnTime = currentTime;
     }
 }
