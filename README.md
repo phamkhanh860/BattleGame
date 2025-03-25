@@ -3,7 +3,10 @@
 ## Giới thiệu
 
 Đây là một trò chơi platformer 2D đơn giản được xây dựng bằng thư viện SDL2. Người chơi điều khiển một nhân vật, di chuyển qua các màn chơi, tránh né kẻ thù, bắn đạn và chiến đấu với boss để giành chiến thắng.
-
+## CHƠI NGAY VÀ LUÔN 
+*   Ở mục Releases tải file.zip có tên "File zip for play !" về máy.
+*   Extract file và sau đó tìm file.exe có tên ".A Game Start." trong folder Game Play để chơi trực tiếp (Nếu không muốn tải CodeBlocks hay các thư viện SDL_2).
+*   Còn không thì cài đặt theo các mục dưới.
 ## Yêu cầu hệ thống
 
 *   **Hệ điều hành:** Bất kỳ hệ điều hành nào hỗ trợ SDL2 (Windows, macOS, Linux)
@@ -66,9 +69,10 @@
     *   Đầu tiên bạn phải nhảy vượt qua 1 số chướng ngại vật.
     *   Khi rơi xuống thì trò chơi kết thúc.
     *   Khi chạm vào kẻ thù, trò chơi sẽ kết thúc.
-    *   Sau khi tiêu diệt khoảng 10 enemy con thì bức tường sẽ mở ra.
-    *   Khi tường mở, bạn sẽ gặp boss. Tiêu diệt boss để tiếp tục.
-    *   Sau khi tiêu diệt đủ boss, bạn sẽ thắng trò chơi.
+    *   Sau khi tiêu diệt khoảng 12 enemy con thì bức tường sẽ mở ra.
+    *   Khi tường mở, bạn phải đi qua tường để gặp boss, tránh boss bằng cách nhảy.
+    *   Tiêu diệt boss bằng cách bắn đạn để tiếp tục.
+    *   Sau khi tiêu diệt đủ 4 boss, bạn sẽ thắng trò chơi.
     *   Khi thua hoặc thắng, bạn sẽ được đưa đến màn hình game over. Tại đây, bạn có thể chọn "Restart" để chơi lại hoặc "Quit" để thoát game.
 
 ## Cấu trúc dự án
@@ -80,4 +84,4 @@
 *   Trọng lực của người chơi được điều chỉnh khi boss xuất hiện (giảm trọng lực để tăng độ khó).
 
 ## Tác giả
-[Phạm Dương Khanh]
+- Phạm Dương Khanh_24020170_IT8
