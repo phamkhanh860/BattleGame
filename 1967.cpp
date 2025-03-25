@@ -8,18 +8,18 @@
 #include <SDL_ttf.h>
 #include <sstream>
 
-//____KÍCH THƯỚC CỐ ĐỊNH____
+//_____________________________________________________________________KÍCH THƯỚC CỐ ĐỊNH_____________________________________________________________________________
 const int SCREEN_WIDTH = 4400;
 const int SCREEN_HEIGHT = 800;
 const int TILE_SIZE = 45;
 const int CAMERA_WIDTH = 900;
 const int CAMERA_HEIGHT = 600;
 
-//_____HIỂN THỊ_____
+//_____________________________________________________________________HIỂN THỊ______________________________________________________________________________
 SDL_Window* window = nullptr;
 SDL_Renderer* renderer = nullptr;
 
-//____ĐỒ HỌA - VĂN BẢN - ÂM THANH____
+//_____________________________________________________________________ĐỒ HỌA - VĂN BẢN - ÂM THANH_____________________________________________________________________________
 std::vector<SDL_Texture*> playerTextures;
 std::vector<SDL_Texture*> bossTextures;
 SDL_Texture* tileTexture = nullptr;
@@ -37,7 +37,7 @@ Uint32 startTime = 0;
 Mix_Music* backgroundMusic = nullptr;
 Mix_Chunk* shootSound = nullptr;
 
-//____FRAME ANIMATION____
+//_____________________________________________________________________FRAME ANIMATION_____________________________________________________________________________
 int currentFrame = 0;
 Uint32 lastFrameTime = 0;
 const int FRAME_DELAY = 100;
@@ -45,7 +45,7 @@ int currentBossFrame = 0;
 Uint32 lastBossFrameTime = 0;
 const int BOSS_FRAME_DELAY = 250;
 
-//____CẤU TRÚC SỰ VẬT____
+//_____________________________________________________________________CẤU TRÚC SỰ VẬT_____________________________________________________________________________
 struct Player {
     float x, y;
     float vx, vy;
@@ -73,7 +73,7 @@ struct Boss {
     int health;
 };
 
-//____KHỞI TẠO BIẾN____
+//_____________________________________________________________________KHỞI TẠO BIẾN_____________________________________________________________________________
 std::vector<Tile> tiles;
 std::vector<Enemy> enemies;
 std::vector<Bullet> bullets;
@@ -96,7 +96,7 @@ SDL_Texture* createTextTexture(const std::string& text, SDL_Color color) {
     return texture;
 }
 
-//____KHỞI TẠO ALL____
+//_____________________________________________________________________KHỞI TẠO ALL_____________________________________________________________________________
 void initialize() {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     IMG_Init(IMG_INIT_PNG);
@@ -129,7 +129,7 @@ void initialize() {
     }
     font = TTF_OpenFont("ARLRDBD.ttf", 20);
 
-//____NGƯỜI CHƠI____
+//_____________________________________________________________________NGƯỜI CHƠI_____________________________________________________________________________
     player.x = 80;
     player.y = 500;
     player.vx = 0;
@@ -138,7 +138,7 @@ void initialize() {
     player.lastDirection = 1;
     player.gravity = 0.35f;
 
-//____TƯỜNG____
+//_____________________________________________________________________TƯỜNG_____________________________________________________________________________
     tiles = {
         {0, 0, 4400, 110},{0, 480, 220, 300},{370, 420, 50, 400},{560, 380, 50, 400}, {780, 520, 430, 340},{1050, 480, 100, 80},
         {780, 410, 100, 30},{780, 520, 430, 340},{1300, 410, 50, 270},{1540, 530, 70, 240},{1540, 320, 50, 135},
@@ -150,7 +150,7 @@ void initialize() {
     startTime = SDL_GetTicks();
 }
 
-//____RESET GAME____
+//_____________________________________________________________________RESET GAME_____________________________________________________________________________
 void resetGame() {
     tiles = {
         {0, 0, 4400, 110},{0, 480, 220, 300},{370, 420, 50, 400},{560, 380, 50, 400}, {780, 520, 430, 340},{1050, 480, 100, 80},
@@ -181,7 +181,7 @@ void resetGame() {
     gameOver = false;
 }
 
-//____THAO TÁC____
+//_____________________________________________________________________THAO TÁC_____________________________________________________________________________
 void handleInput(SDL_Event& event) {
     if (!gameStarted) {
         if (event.type == SDL_MOUSEBUTTONDOWN) {
@@ -231,7 +231,9 @@ void handleInput(SDL_Event& event) {
     }
 }
 
-//___THÊM CÁC ĐỐI TƯỢNG____
+//_____________________________________________________________________THÊM CÁC ĐỐI TƯỢNG_____________________________________________________________________________
+
+//--------------------------------------ENEMY-----------------------------------------
 void spawnEnemy() {
     if (!enemySpawnActive) return;
     Uint32 currentTime = SDL_GetTicks();
@@ -241,6 +243,51 @@ void spawnEnemy() {
         lastEnemySpawnTime = currentTime;
     }
 }
+void updateEnemies() {
+    for (auto& enemy : enemies) {
+        if (!enemy.active) continue;
+        bool onGround = false;
+        for (auto& tile : tiles) {
+            SDL_Rect enemyRect = {static_cast<int>(enemy.x), static_cast<int>(enemy.y), TILE_SIZE, TILE_SIZE};
+            SDL_Rect tileRect = {tile.x, tile.y, tile.w, tile.h};
+            if (enemyRect.x < tileRect.x + tileRect.w &&
+                enemyRect.x + enemyRect.w > tileRect.x &&
+                enemyRect.y + enemyRect.h <= tileRect.y + 1 &&
+                enemyRect.y + enemyRect.h >= tileRect.y) {
+                onGround = true;
+                break;
+            }
+        }
+        if (!onGround) {
+            enemy.y += 5;
+        }
+        enemy.x += enemy.vx;
+        if (enemy.x < 0 || enemy.x + TILE_SIZE > SCREEN_WIDTH) {
+            enemy.vx = -enemy.vx;
+        }
+        for (auto& tile : tiles) {
+            SDL_Rect enemyRect = {static_cast<int>(enemy.x), static_cast<int>(enemy.y), TILE_SIZE, TILE_SIZE};
+            SDL_Rect tileRect = {tile.x, tile.y, tile.w, tile.h};
+            if (SDL_HasIntersection(&enemyRect, &tileRect)) {
+                if (enemy.vx > 0) {
+                    enemy.x = tile.x - TILE_SIZE;
+                } else if (enemy.vx < 0) {
+                    enemy.x = tile.x + tile.w;
+                }
+                enemy.vx = -enemy.vx;
+            }
+        }
+        // Kiểm tra va chạm với người chơi
+        SDL_Rect playerRect = {static_cast<int>(player.x), static_cast<int>(player.y), TILE_SIZE, TILE_SIZE};
+        SDL_Rect enemyRect = {static_cast<int>(enemy.x), static_cast<int>(enemy.y), TILE_SIZE, TILE_SIZE};
+        if (SDL_HasIntersection(&playerRect, &enemyRect)) {
+            std::cout << "Game Over!" << std::endl;
+            gameOver = true;
+            return;
+        }
+    }
+}
+//--------------------------------------BULLET-----------------------------------------
 void spawnBullet() {
     if (shoot) {
         bullets.push_back({player.x + TILE_SIZE / 10, player.y + TILE_SIZE / 10, player.lastDirection * 10, true});
@@ -297,50 +344,7 @@ void updateBullets() {
         }
     }
 }
-void updateEnemies() {
-    for (auto& enemy : enemies) {
-        if (!enemy.active) continue;
-        bool onGround = false;
-        for (auto& tile : tiles) {
-            SDL_Rect enemyRect = {static_cast<int>(enemy.x), static_cast<int>(enemy.y), TILE_SIZE, TILE_SIZE};
-            SDL_Rect tileRect = {tile.x, tile.y, tile.w, tile.h};
-            if (enemyRect.x < tileRect.x + tileRect.w &&
-                enemyRect.x + enemyRect.w > tileRect.x &&
-                enemyRect.y + enemyRect.h <= tileRect.y + 1 &&
-                enemyRect.y + enemyRect.h >= tileRect.y) {
-                onGround = true;
-                break;
-            }
-        }
-        if (!onGround) {
-            enemy.y += 5;
-        }
-        enemy.x += enemy.vx;
-        if (enemy.x < 0 || enemy.x + TILE_SIZE > SCREEN_WIDTH) {
-            enemy.vx = -enemy.vx;
-        }
-        for (auto& tile : tiles) {
-            SDL_Rect enemyRect = {static_cast<int>(enemy.x), static_cast<int>(enemy.y), TILE_SIZE, TILE_SIZE};
-            SDL_Rect tileRect = {tile.x, tile.y, tile.w, tile.h};
-            if (SDL_HasIntersection(&enemyRect, &tileRect)) {
-                if (enemy.vx > 0) {
-                    enemy.x = tile.x - TILE_SIZE;
-                } else if (enemy.vx < 0) {
-                    enemy.x = tile.x + tile.w;
-                }
-                enemy.vx = -enemy.vx;
-            }
-        }
-        // Kiểm tra va chạm với người chơi
-        SDL_Rect playerRect = {static_cast<int>(player.x), static_cast<int>(player.y), TILE_SIZE, TILE_SIZE};
-        SDL_Rect enemyRect = {static_cast<int>(enemy.x), static_cast<int>(enemy.y), TILE_SIZE, TILE_SIZE};
-        if (SDL_HasIntersection(&playerRect, &enemyRect)) {
-            std::cout << "Game Over!" << std::endl;
-            gameOver = true;
-            return;
-        }
-    }
-}
+//--------------------------------------BOSS-----------------------------------------
 void spawnBoss() {
     if (!bossSpawned) {
         boss.x = SCREEN_WIDTH - TILE_SIZE;
@@ -380,7 +384,7 @@ void updateBoss() {
     }
 }
 
-//____UPDATE ĐỐI TƯỢNG____
+//_____________________________________________________________________UPDATE ĐỐI TƯỢNG_____________________________________________________________________________
 void update() {
     if (!gameStarted || gameOver) return; // Không update nếu game chưa bắt đầu hoặc đã kết thúc
     if (moveLeft) player.vx = -4;
@@ -453,7 +457,7 @@ void update() {
     updateBoss();
 }
 
-//____RENDER____
+//_____________________________________________________________________RENDER_____________________________________________________________________________
 void render() {
     SDL_RenderClear(renderer);
     if (!gameStarted) {
@@ -512,7 +516,7 @@ void render() {
     SDL_RenderPresent(renderer);
 }
 
-//____GIẢI PHÓNG____
+//_____________________________________________________________________GIẢI PHÓNG_____________________________________________________________________________
 void cleanup() {
     for (auto& texture : playerTextures) {
         SDL_DestroyTexture(texture);
@@ -540,7 +544,7 @@ void cleanup() {
     SDL_Quit();
 }
 
-//____HÀM MAIN____
+//_____________________________________________________________________HÀM MAIN_____________________________________________________________________________
 int main(int argc, char* argv[]) {
     initialize();
     bool running = true;
