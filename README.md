@@ -7,6 +7,8 @@
 *   Ở mục Releases tải file.zip có tên "File zip for play !" về máy.
 *   Extract file và sau đó tìm file.exe có tên ".A Game Start." trong folder Game Play để chơi trực tiếp (Nếu không muốn tải CodeBlocks hay các thư viện SDL_2).
 *   Còn không thì cài đặt theo các mục dưới.
+## Cấu trúc Project
+    * Gồm project chính: emday và các file con .h và .cpp
 ## Yêu cầu hệ thống
 
 *   **Hệ điều hành:** Bất kỳ hệ điều hành nào hỗ trợ SDL2 (Windows, macOS, Linux)
