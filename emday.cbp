@@ -50,6 +50,17 @@
 			<Add directory="../SDL2_image-2.0.5/x86_64-w64-mingw32/lib" />
 			<Add directory="../SDL2_ttf-2.24.0/x86_64-w64-mingw32/lib" />
 		</Linker>
+		<Unit filename="Boss.h" />
+		<Unit filename="Bullet.h" />
+		<Unit filename="Constants.h" />
+		<Unit filename="Enemy.h" />
+		<Unit filename="Game.cpp" />
+		<Unit filename="Game.h" />
+		<Unit filename="Player.h" />
+		<Unit filename="ResourceManager.cpp" />
+		<Unit filename="ResourceManager.h" />
+		<Unit filename="Tile.h" />
+		<Unit filename="main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

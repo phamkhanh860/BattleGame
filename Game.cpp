@@ -1,110 +1,54 @@
-#include <SDL.h>
-#include <SDL_image.h>
+//Game.cpp
+#include "Game.h"
+#include "Constants.h"
 #include <iostream>
-#include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <sstream>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <SDL_mixer.h>
 #include <SDL_ttf.h>
-#include <sstream>
 
-//_____________________________________________________________________KÍCH THƯỚC CỐ ĐỊNH_____________________________________________________________________________
-const int SCREEN_WIDTH = 4400;
-const int SCREEN_HEIGHT = 800;
-const int TILE_SIZE = 45;
-const int CAMERA_WIDTH = 900;
-const int CAMERA_HEIGHT = 600;
+Game::Game() :
+    moveLeft(false),
+    moveRight(false),
+    jump(false),
+    shoot(false),
+    enemySpawnActive(false),
+    lastEnemySpawnTime(0),
+    bossSpawned(false),
+    bossesKilled(0),
+    cnt(0),
+    gameStarted(false),
+    gameOver(false),
+    startTime(0),
+    currentFrame(0),
+    lastFrameTime(0),
+    currentBossFrame(0),
+    lastBossFrameTime(0)
+{
+}
 
-//_____________________________________________________________________HIỂN THỊ______________________________________________________________________________
-SDL_Window* window = nullptr;
-SDL_Renderer* renderer = nullptr;
-
-//_____________________________________________________________________ĐỒ HỌA - VĂN BẢN - ÂM THANH_____________________________________________________________________________
-std::vector<SDL_Texture*> playerTextures;
-std::vector<SDL_Texture*> bossTextures;
-SDL_Texture* tileTexture = nullptr;
-SDL_Texture* enemyTexture = nullptr;
-SDL_Texture* bulletTexture = nullptr;
-SDL_Texture* nenTexture = nullptr;
-SDL_Texture* startScreenTexture = nullptr;
-SDL_Texture* startButtonTexture = nullptr;
-SDL_Texture* gameOverTexture = nullptr;
-SDL_Texture* restartButtonTexture = nullptr;
-SDL_Texture* quitButtonTexture = nullptr;
-TTF_Font* font = nullptr;
-SDL_Texture* timeTexture = nullptr;
-Uint32 startTime = 0;
-Mix_Music* backgroundMusic = nullptr;
-Mix_Chunk* shootSound = nullptr;
-
-//_____________________________________________________________________FRAME ANIMATION_____________________________________________________________________________
-int currentFrame = 0;
-Uint32 lastFrameTime = 0;
-const int FRAME_DELAY = 100;
-int currentBossFrame = 0;
-Uint32 lastBossFrameTime = 0;
-const int BOSS_FRAME_DELAY = 250;
-
-//_____________________________________________________________________CẤU TRÚC SỰ VẬT_____________________________________________________________________________
-struct Player {
-    float x, y;
-    float vx, vy;
-    bool onGround;
-    int lastDirection; // 1: right, -1: left
-    float gravity;
-};
-struct Tile {
-    int x, y, w, h;
-};
-struct Enemy {
-    float x, y;
-    float vx;
-    bool active;
-};
-struct Bullet {
-    float x, y;
-    float vx;
-    bool active;
-};
-struct Boss {
-    float x, y;
-    float vx;
-    bool active;
-    int health;
-};
-
-//_____________________________________________________________________KHỞI TẠO BIẾN_____________________________________________________________________________
-std::vector<Tile> tiles;
-std::vector<Enemy> enemies;
-std::vector<Bullet> bullets;
-Player player;
-Boss boss;
-bool moveLeft = false, moveRight = false, jump = false, shoot = false;
-bool enemySpawnActive = false;
-Uint32 lastEnemySpawnTime = 0;
-bool bossSpawned = false;
-int bossesKilled = 0;
-int cnt = 0;
-bool gameStarted = false;
-bool gameOver = false;
-SDL_Rect camera = {0, 0, CAMERA_WIDTH, CAMERA_HEIGHT};
-
-SDL_Texture* createTextTexture(const std::string& text, SDL_Color color) {
+Game::~Game() {
+}
+SDL_Texture* Game::createTextTexture(const std::string& text, SDL_Color color) {
     SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     return texture;
 }
-
-//_____________________________________________________________________KHỞI TẠO ALL_____________________________________________________________________________
-void initialize() {
+void Game::initialize() {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     IMG_Init(IMG_INIT_PNG);
     Mix_Init(MIX_INIT_MP3);
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
     TTF_Init();
-    window = SDL_CreateWindow("Platformer Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, CAMERA_WIDTH, CAMERA_HEIGHT, 0);
+
+    window = SDL_CreateWindow("Platformer Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 900, 600, 0);
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
     playerTextures.push_back(SDL_CreateTextureFromSurface(renderer, IMG_Load("player1.png")));
     playerTextures.push_back(SDL_CreateTextureFromSurface(renderer, IMG_Load("player2.png")));
     playerTextures.push_back(SDL_CreateTextureFromSurface(renderer, IMG_Load("player3.png")));
@@ -124,12 +68,15 @@ void initialize() {
     restartButtonTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("restart_button.png"));
     backgroundMusic = Mix_LoadMUS("background.mp3");
     shootSound = Mix_LoadWAV("shoot.wav");
+
     if (backgroundMusic) {
         Mix_PlayMusic(backgroundMusic, -1);
+    } else {
+        std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
     }
+
     font = TTF_OpenFont("ARLRDBD.ttf", 20);
 
-//_____________________________________________________________________NGƯỜI CHƠI_____________________________________________________________________________
     player.x = 80;
     player.y = 500;
     player.vx = 0;
@@ -138,7 +85,6 @@ void initialize() {
     player.lastDirection = 1;
     player.gravity = 0.35f;
 
-//_____________________________________________________________________TƯỜNG_____________________________________________________________________________
     tiles = {
         {0, 0, 4400, 110},{0, 480, 220, 300},{370, 420, 50, 400},{560, 380, 50, 400}, {780, 520, 430, 340},{1050, 480, 100, 80},
         {780, 410, 100, 30},{780, 520, 430, 340},{1300, 410, 50, 270},{1540, 530, 70, 240},{1540, 320, 50, 135},
@@ -146,12 +92,26 @@ void initialize() {
         {2080, 350, 20, 30},{1890, 520, 200, 100},{1940, 440, 100, 80},{0, 740, 4400, 500},{2750, 250, 40, 40},
         {3100, 585, 40, 20},{3100, 0, 70, 400},{3100, 400, 70, 190},
     };
+
     srand(static_cast<unsigned int>(time(0)));
     startTime = SDL_GetTicks();
 }
 
-//_____________________________________________________________________RESET GAME_____________________________________________________________________________
-void resetGame() {
+void Game::run() {
+    bool running = true;
+    SDL_Event event;
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) running = false;
+            handleInput(event);
+        }
+        update();
+        render();
+        SDL_Delay(16);
+    }
+}
+
+void Game::resetGame() {
     tiles = {
         {0, 0, 4400, 110},{0, 480, 220, 300},{370, 420, 50, 400},{560, 380, 50, 400}, {780, 520, 430, 340},{1050, 480, 100, 80},
         {780, 410, 100, 30},{780, 520, 430, 340},{1300, 410, 50, 270},{1540, 530, 70, 240},{1540, 320, 50, 135},
@@ -181,8 +141,7 @@ void resetGame() {
     gameOver = false;
 }
 
-//_____________________________________________________________________THAO TÁC_____________________________________________________________________________
-void handleInput(SDL_Event& event) {
+void Game::handleInput(SDL_Event& event) {
     if (!gameStarted) {
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mouseX, mouseY;
@@ -231,10 +190,7 @@ void handleInput(SDL_Event& event) {
     }
 }
 
-//_____________________________________________________________________THÊM CÁC ĐỐI TƯỢNG_____________________________________________________________________________
-
-//--------------------------------------ENEMY-----------------------------------------
-void spawnEnemy() {
+void Game::spawnEnemy() {
     if (!enemySpawnActive) return;
     Uint32 currentTime = SDL_GetTicks();
     if (currentTime - lastEnemySpawnTime > 1700) {
@@ -243,7 +199,8 @@ void spawnEnemy() {
         lastEnemySpawnTime = currentTime;
     }
 }
-void updateEnemies() {
+
+void Game::updateEnemies() {
     for (auto& enemy : enemies) {
         if (!enemy.active) continue;
         bool onGround = false;
@@ -287,8 +244,8 @@ void updateEnemies() {
         }
     }
 }
-//--------------------------------------BULLET-----------------------------------------
-void spawnBullet() {
+
+void Game::spawnBullet() {
     if (shoot) {
         bullets.push_back({player.x + TILE_SIZE / 10, player.y + TILE_SIZE / 10, player.lastDirection * 10, true});
         shoot = false; // Reset trạng thái bắn
@@ -297,7 +254,8 @@ void spawnBullet() {
         }
     }
 }
-void updateBullets() {
+
+void Game::updateBullets() {
     for (auto& bullet : bullets) {
         if (!bullet.active) continue;
         bullet.x += bullet.vx;
@@ -344,8 +302,8 @@ void updateBullets() {
         }
     }
 }
-//--------------------------------------BOSS-----------------------------------------
-void spawnBoss() {
+
+void Game::spawnBoss() {
     if (!bossSpawned) {
         boss.x = SCREEN_WIDTH - TILE_SIZE;
         boss.y = 440;
@@ -356,7 +314,8 @@ void spawnBoss() {
         player.gravity = 0.13f;
     }
 }
-void updateBoss() {
+
+void Game::updateBoss() {
     if (!bossSpawned || !boss.active) return;
     boss.x += boss.vx;
     if (boss.x < 3170) {
@@ -384,8 +343,7 @@ void updateBoss() {
     }
 }
 
-//_____________________________________________________________________UPDATE ĐỐI TƯỢNG_____________________________________________________________________________
-void update() {
+void Game::update() {
     if (!gameStarted || gameOver) return; // Không update nếu game chưa bắt đầu hoặc đã kết thúc
     if (moveLeft) player.vx = -4;
     if (moveRight) player.vx = 4;
@@ -457,8 +415,7 @@ void update() {
     updateBoss();
 }
 
-//_____________________________________________________________________RENDER_____________________________________________________________________________
-void render() {
+void Game::render() {
     SDL_RenderClear(renderer);
     if (!gameStarted) {
         SDL_Rect startScreenRect = {0, 0, CAMERA_WIDTH, CAMERA_HEIGHT};
@@ -516,8 +473,7 @@ void render() {
     SDL_RenderPresent(renderer);
 }
 
-//_____________________________________________________________________GIẢI PHÓNG_____________________________________________________________________________
-void cleanup() {
+void Game::cleanup() {
     for (auto& texture : playerTextures) {
         SDL_DestroyTexture(texture);
     }
@@ -542,22 +498,4 @@ void cleanup() {
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
-}
-
-//_____________________________________________________________________HÀM MAIN_____________________________________________________________________________
-int main(int argc, char* argv[]) {
-    initialize();
-    bool running = true;
-    SDL_Event event;
-    while (running) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) running = false;
-            handleInput(event);
-        }
-        update();
-        render();
-        SDL_Delay(16);
-    }
-    cleanup();
-    return 0;
 }

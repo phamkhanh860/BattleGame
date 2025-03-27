@@ -443,3 +443,135 @@
 	<SDL_ttf.h>
 	<sstream>
 
+1743005763 source:c:\emday\audio.cpp
+	"audio.h"
+	<iostream>
+
+1743005763 c:\emday\audio.h
+	<SDL_mixer.h>
+
+1743006352 source:c:\emday\input.cpp
+	"input.h"
+	"game.h"
+	"constants.h"
+	<iostream>
+
+1743005763 c:\emday\input.h
+	<SDL.h>
+
+1743036674 c:\emday\game.h
+	<SDL.h>
+	<SDL_mixer.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<vector>
+	<sstream>
+	"Player.h"
+	"Tile.h"
+	"Enemy.h"
+	"Bullet.h"
+	"Boss.h"
+
+1743005763 c:\emday\structs.h
+
+1743036674 c:\emday\constants.h
+
+1743037819 source:c:\emday\game.cpp
+	"Game.h"
+	"Constants.h"
+	<iostream>
+	<cstdlib>
+	<ctime>
+	<sstream>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+
+1743006017 c:\emday\graphics.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<string>
+	<vector>
+
+1743010425 c:\emday\entities.h
+
+1743010426 source:c:\emday\entities.cpp
+	"Entities.h"
+
+1743006361 source:c:\emday\graphics.cpp
+	"graphics.h"
+	"structs.h"
+	"constants.h"
+	<iostream>
+	<vector>
+	<sstream>
+
+1743010426 source:c:\emday\config.cpp
+	"Config.h"
+
+1743010426 c:\emday\config.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	<iostream>
+	<vector>
+	<cstdlib>
+	<ctime>
+	<sstream>
+
+1743010277 source:c:\emday\gamemanager.cpp
+	"GameManager.h"
+
+1743010277 c:\emday\gamemanager.h
+	"Config.h"
+	"Entities.h"
+	<vector>
+	<cstdlib>
+	<ctime>
+	<sstream>
+
+1743010277 source:c:\emday\inputhandler.cpp
+	"InputHandler.h"
+	"GameManager.h"
+
+1743010277 c:\emday\inputhandler.h
+	"Config.h"
+	"Entities.h"
+
+1743037682 source:c:\emday\main.cpp
+	"Game.h"
+	<SDL.h>
+
+1743010277 c:\emday\updatesystem.h
+	"Config.h"
+	"Entities.h"
+
+1743010277 c:\emday\rendersystem.h
+	"Config.h"
+	"Entities.h"
+	<sstream>
+
+1743036889 source:c:\emday\resourcemanager.cpp
+	"ResourceManager.h"
+	<iostream>
+
+1743036410 c:\emday\resourcemanager.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	<vector>
+
+1743034530 c:\emday\player.h
+
+1743034550 c:\emday\tile.h
+
+1743034570 c:\emday\enemy.h
+
+1743034638 c:\emday\bullet.h
+
+1743034624 c:\emday\boss.h
+
