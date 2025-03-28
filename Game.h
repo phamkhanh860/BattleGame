@@ -28,7 +28,7 @@ public:
     void resetGame();
 
 private:
-    static const int SCREEN_WIDTH = 4400;
+    static const int SCREEN_WIDTH = 5000;
     static const int SCREEN_HEIGHT = 800;
     static const int TILE_SIZE = 45;
     static const int CAMERA_WIDTH = 900;
