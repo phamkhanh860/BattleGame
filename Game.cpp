@@ -22,6 +22,9 @@ Game::Game() :
     cnt(0),
     gameStarted(false),
     gameOver(false),
+    isHover(false),
+    isHover1(false),
+    isHover2(false),
     startTime(0),
     currentFrame(0),
     lastFrameTime(0),
@@ -63,9 +66,12 @@ void Game::initialize() {
     bulletTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("bullet.png"));
     gameOverTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("game_over.png"));
     quitButtonTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("quit_button.png"));
+    quitButton1Texture = SDL_CreateTextureFromSurface(renderer, IMG_Load("quit_button1.png"));
     startScreenTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("start_screen.png"));
     startButtonTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("start_button.png"));
+    startButton1Texture = SDL_CreateTextureFromSurface(renderer, IMG_Load("start_button1.png"));
     restartButtonTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("restart_button.png"));
+    restartButton1Texture = SDL_CreateTextureFromSurface(renderer, IMG_Load("restart_button1.png"));
     backgroundMusic = Mix_LoadMUS("background.mp3");
     shootSound = Mix_LoadWAV("shoot.wav");
 
@@ -139,10 +145,18 @@ void Game::resetGame() {
     enemySpawnActive = false;
     startTime = SDL_GetTicks(); // Reset time
     gameOver = false;
+    isHover = false;
 }
 
 void Game::handleInput(SDL_Event& event) {
     if (!gameStarted) {
+        if (event.type == SDL_MOUSEMOTION) {
+            int mouseX = event.motion.x;
+            int mouseY = event.motion.y;
+            SDL_Rect startButtonRect = {CAMERA_WIDTH / 2 - 50, CAMERA_HEIGHT / 2 - 25, 120, 60};
+            isHover = (mouseX >= startButtonRect.x && mouseX <= startButtonRect.x + startButtonRect.w &&
+                       mouseY >= startButtonRect.y && mouseY <= startButtonRect.y + startButtonRect.h);
+        }
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
@@ -156,6 +170,16 @@ void Game::handleInput(SDL_Event& event) {
         return; // Không xử lý các input khác nếu game chưa bắt đầu
     }
     if (gameOver) {
+        if (event.type == SDL_MOUSEMOTION) {
+            int mouseX = event.motion.x;
+            int mouseY = event.motion.y;
+            SDL_Rect restartButtonRect = {CAMERA_WIDTH / 2 - 150, CAMERA_HEIGHT / 2 + 50, 120, 60};
+            SDL_Rect quitButtonRect = {CAMERA_WIDTH / 2 + 30, CAMERA_HEIGHT / 2 + 50, 120, 60};
+            isHover1 = (mouseX >= restartButtonRect.x && mouseX <= restartButtonRect.x + restartButtonRect.w &&
+                mouseY >= restartButtonRect.y && mouseY <= restartButtonRect.y + restartButtonRect.h);
+            isHover2 = (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
+                mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h);
+        }
         if (event.type == SDL_MOUSEBUTTONDOWN) {
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
@@ -421,14 +445,32 @@ void Game::render() {
         SDL_Rect startScreenRect = {0, 0, CAMERA_WIDTH, CAMERA_HEIGHT};
         SDL_RenderCopy(renderer, startScreenTexture, nullptr, &startScreenRect);
         SDL_Rect startButtonRect = {CAMERA_WIDTH / 2 - 60, CAMERA_HEIGHT / 2 - 25, 120, 60};
-        SDL_RenderCopy(renderer, startButtonTexture, nullptr, &startButtonRect);
+        SDL_Rect startButton1Rect = {CAMERA_WIDTH / 2 - 60, CAMERA_HEIGHT / 2 - 25, 120, 60};
+        if(isHover){
+            SDL_RenderCopy(renderer, startButton1Texture, nullptr, &startButton1Rect);
+        }
+        else{
+            SDL_RenderCopy(renderer, startButtonTexture, nullptr, &startButtonRect);
+        }
     } else if (gameOver) {
         SDL_Rect gameOverRect = {0, 0, CAMERA_WIDTH, CAMERA_HEIGHT};
         SDL_RenderCopy(renderer, gameOverTexture, nullptr, &gameOverRect);
         SDL_Rect restartButtonRect = {CAMERA_WIDTH / 2 - 150, CAMERA_HEIGHT / 2 + 50, 120, 60};
-        SDL_RenderCopy(renderer, restartButtonTexture, nullptr, &restartButtonRect);
+        SDL_Rect restartButton1Rect = {CAMERA_WIDTH / 2 - 150, CAMERA_HEIGHT / 2 + 50, 120, 60};
+        if(isHover1){
+            SDL_RenderCopy(renderer, restartButton1Texture, nullptr, &restartButton1Rect);
+        }
+        else{
+            SDL_RenderCopy(renderer, restartButtonTexture, nullptr, &restartButtonRect);
+        }
         SDL_Rect quitButtonRect = {CAMERA_WIDTH / 2 + 30, CAMERA_HEIGHT / 2 + 50, 120, 60};
-        SDL_RenderCopy(renderer, quitButtonTexture, nullptr, &quitButtonRect);
+        SDL_Rect quitButton1Rect = {CAMERA_WIDTH / 2 + 30, CAMERA_HEIGHT / 2 + 50, 120, 60};
+        if(isHover2){
+            SDL_RenderCopy(renderer, quitButton1Texture, nullptr, &quitButton1Rect);
+        }
+        else{
+            SDL_RenderCopy(renderer, quitButtonTexture, nullptr, &quitButtonRect);
+        }
     } else {
         SDL_Rect nenRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
         SDL_RenderCopy(renderer, nenTexture, nullptr, &nenRect);
@@ -486,9 +528,12 @@ void Game::cleanup() {
     SDL_DestroyTexture(nenTexture);
     SDL_DestroyTexture(startScreenTexture);
     SDL_DestroyTexture(startButtonTexture);
+    SDL_DestroyTexture(startButton1Texture);
     SDL_DestroyTexture(gameOverTexture);
     SDL_DestroyTexture(restartButtonTexture);
     SDL_DestroyTexture(quitButtonTexture);
+    SDL_DestroyTexture(restartButton1Texture);
+    SDL_DestroyTexture(quitButton1Texture);
     SDL_DestroyRenderer(renderer);
     Mix_FreeMusic(backgroundMusic);
     Mix_FreeChunk(shootSound);

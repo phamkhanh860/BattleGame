@@ -25,9 +25,12 @@ public:
     SDL_Texture* nenTexture = nullptr;
     SDL_Texture* startScreenTexture = nullptr;
     SDL_Texture* startButtonTexture = nullptr;
+    SDL_Texture* startButton1Texture = nullptr;
     SDL_Texture* gameOverTexture = nullptr;
     SDL_Texture* restartButtonTexture = nullptr;
     SDL_Texture* quitButtonTexture = nullptr;
+    SDL_Texture* restartButton1Texture = nullptr;
+    SDL_Texture* quitButton1Texture = nullptr;
     TTF_Font* font = nullptr;
     Mix_Music* backgroundMusic = nullptr;
     Mix_Chunk* shootSound = nullptr;

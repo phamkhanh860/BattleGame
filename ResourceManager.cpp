@@ -32,9 +32,12 @@ void ResourceManager::initialize() {
     bulletTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("bullet.png"));
     gameOverTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("game_over.png"));
     quitButtonTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("quit_button.png"));
+    quitButton1Texture = SDL_CreateTextureFromSurface(renderer, IMG_Load("quit_button1.png"));
     startScreenTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("start_screen.png"));
     startButtonTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("start_button.png"));
+    startButton1Texture = SDL_CreateTextureFromSurface(renderer, IMG_Load("start_button1.png"));
     restartButtonTexture = SDL_CreateTextureFromSurface(renderer, IMG_Load("restart_button.png"));
+    restartButton1Texture = SDL_CreateTextureFromSurface(renderer, IMG_Load("restart_button1.png"));
     backgroundMusic = Mix_LoadMUS("background.mp3");
     shootSound = Mix_LoadWAV("shoot.wav");
 
