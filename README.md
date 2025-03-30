@@ -1,14 +1,25 @@
-# Platformer Game - README
+# Space War Game - README
 
 ## Giới thiệu
 
-Đây là một trò chơi platformer 2D đơn giản được xây dựng bằng thư viện SDL2. Người chơi điều khiển một nhân vật, di chuyển qua các màn chơi, tránh né kẻ thù, bắn đạn và chiến đấu với boss để giành chiến thắng.
-## CHƠI NGAY VÀ LUÔN 
+Đây là một trò chơi platformer 2D đơn giản được xây dựng bằng thư viện SDL2 với ngôn ngữ C++. Người chơi điều khiển một nhân vật, di chuyển qua các màn chơi, tránh né kẻ thù, bắn đạn và chiến đấu với boss để giành chiến thắng.
+## CHƠI NGAY  
 *   Ở mục Releases tải file.zip có tên "File zip for play !" về máy.
 *   Extract file và sau đó tìm file.exe có tên ".A Game Start." trong folder Game Play để chơi trực tiếp (Nếu không muốn tải CodeBlocks hay các thư viện SDL_2).
-*   Còn không thì cài đặt theo các mục dưới.
+*   Không thì cài đặt theo các mục dưới.
 ## Cấu trúc Project
     * Gồm project chính: emday và các file con .h và .cpp
+        + Game.h    
+        + Bullet.h
+        + Enemy.h
+        + Boss.h
+        + Tile.h
+        + ResourceManager.h
+        + Constants.h
+        + ResourceManager.cpp
+        + main.cpp
+        + game.cpp
+        + Các image PNG và âm thanh WAV, MP3.
 ## Yêu cầu hệ thống
 
 *   **Hệ điều hành:** Bất kỳ hệ điều hành nào hỗ trợ SDL2 (Windows, macOS, Linux)
@@ -50,7 +61,7 @@
 
 3.  **Chạy trò chơi:**
 
-    *   Sau khi biên dịch thành công, file thực thi `platformer` (hoặc tên bạn đặt) sẽ được tạo ra.
+    *   Sau khi biên dịch thành công, file thực thi `Space war` sẽ được tạo ra.
     *   Chạy file thực thi này để bắt đầu trò chơi. Đảm bảo các tài nguyên (hình ảnh, âm thanh, font) nằm trong cùng thư mục với file thực thi.
 
 ## Hướng dẫn chơi
@@ -80,7 +91,7 @@
 ## Cấu trúc dự án
 ## Ghi chú
 
-*   File `.ttf`, `.png`, `.mp3`, `.wav` phải nằm trong cùng thư mục với file thực thi.
+*   File `.ttf`, `.png`, `.mp3`, `.wav` nằm trong cùng thư mục với file thực thi.
 *   Trò chơi có thể được tùy chỉnh bằng cách thay đổi các hằng số như `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `TILE_SIZE`, `FRAME_DELAY`, `BOSS_FRAME_DELAY` để điều chỉnh kích thước màn hình, kích thước gạch, tốc độ animation,...
 *   Có thể thêm nhiều màn chơi, kẻ thù, boss,... bằng cách chỉnh sửa mã nguồn.
 *   Trọng lực của người chơi được điều chỉnh khi boss xuất hiện (giảm trọng lực để tăng độ khó).
