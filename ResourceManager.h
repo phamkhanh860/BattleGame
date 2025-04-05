@@ -32,6 +32,7 @@ public:
     SDL_Texture* restartButton1Texture = nullptr;
     SDL_Texture* quitButton1Texture = nullptr;
     TTF_Font* font = nullptr;
+    TTF_Font* largeFont = nullptr;
     Mix_Music* backgroundMusic = nullptr;
     Mix_Chunk* shootSound = nullptr;
 };

@@ -26,6 +26,7 @@ Game::Game() :
     isHover1(false),
     isHover2(false),
     startTime(0),
+    finalTime(0),
     currentFrame(0),
     lastFrameTime(0),
     currentBossFrame(0),
@@ -35,8 +36,8 @@ Game::Game() :
 
 Game::~Game() {
 }
-SDL_Texture* Game::createTextTexture(const std::string& text, SDL_Color color) {
-    SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), color);
+SDL_Texture* Game::createTextTexture(const std::string& text, SDL_Color color, TTF_Font* useFont) { // Thêm useFont
+    SDL_Surface* surface = TTF_RenderText_Solid(useFont, text.c_str(), color);
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
     return texture;
@@ -82,6 +83,7 @@ void Game::initialize() {
     }
 
     font = TTF_OpenFont("ARLRDBD.ttf", 20);
+    largeFont = TTF_OpenFont("ARLRDBD.ttf", 50);
 
     player.x = 80;
     player.y = 500;
@@ -144,8 +146,11 @@ void Game::resetGame() {
     shoot = false;
     enemySpawnActive = false;
     startTime = SDL_GetTicks(); // Reset time
+    finalTime = 0;
     gameOver = false;
     isHover = false;
+    isHover1 = false;
+    isHover2 = false;
 }
 
 void Game::handleInput(SDL_Event& event) {
@@ -262,6 +267,8 @@ void Game::updateEnemies() {
         SDL_Rect playerRect = {static_cast<int>(player.x), static_cast<int>(player.y), TILE_SIZE, TILE_SIZE};
         SDL_Rect enemyRect = {static_cast<int>(enemy.x), static_cast<int>(enemy.y), TILE_SIZE, TILE_SIZE};
         if (SDL_HasIntersection(&playerRect, &enemyRect)) {
+            //std::cout << player.x << " " << player.y << std::endl;
+            finalTime = SDL_GetTicks() - startTime;
             std::cout << "Game Over!" << std::endl;
             gameOver = true;
             return;
@@ -288,6 +295,14 @@ void Game::updateBullets() {
             bullet.active = false;
             continue;
         }
+        for (auto& tile : tiles) {
+            SDL_Rect bulletRect = {static_cast<int>(bullet.x), static_cast<int>(bullet.y), TILE_SIZE-5, TILE_SIZE-5};
+            SDL_Rect tileRect = {tile.x, tile.y, tile.w, tile.h};
+            if (SDL_HasIntersection(&bulletRect, &tileRect)) {
+                bullet.active = false;
+                break;
+            }
+        }
         // ENEMY
         for (auto& enemy : enemies) {
             if (!enemy.active) continue;
@@ -301,6 +316,7 @@ void Game::updateBullets() {
             }
         }
         if (cnt == 12) {
+            enemies.clear();
             tiles.pop_back();
             cnt = -99999;
         }
@@ -316,6 +332,7 @@ void Game::updateBullets() {
                     bossSpawned = false;
                     bossesKilled++; // Tăng số lượng boss đã bị tiêu diệt
                     if (bossesKilled >= 4) {
+                        finalTime = SDL_GetTicks() - startTime;
                         std::cout << "You Win!" << std::endl;
                         gameOver = true;
                         return;
@@ -334,6 +351,7 @@ void Game::spawnBoss() {
         boss.vx = 6;
         boss.active = true;
         boss.health = 15;
+        boss.maxHealth = 15;
         bossSpawned = true;
         player.gravity = 0.13f;
     }
@@ -354,7 +372,8 @@ void Game::updateBoss() {
     SDL_Rect playerRect = {static_cast<int>(player.x), static_cast<int>(player.y), TILE_SIZE, TILE_SIZE};
     SDL_Rect bossRect = {static_cast<int>(boss.x), static_cast<int>(boss.y), 150, 150};
 
-    if (SDL_HasIntersection(&playerRect, &bossRect)) {
+    if (SDL_HasIntersection(&playerRect, &bossRect)){
+        finalTime = SDL_GetTicks() - startTime;
         std::cout << "Game Over! Boss touched you." << std::endl;
         gameOver = true;
         return;
@@ -423,6 +442,7 @@ void Game::update() {
     if (camera.x + CAMERA_WIDTH > SCREEN_WIDTH) camera.x = SCREEN_WIDTH - CAMERA_WIDTH;
     if (camera.y + CAMERA_HEIGHT > SCREEN_HEIGHT) camera.y = SCREEN_HEIGHT - CAMERA_HEIGHT;
     if (player.y == 695) {
+        finalTime = SDL_GetTicks() - startTime;
         gameOver = true;
         return;
     }
@@ -455,6 +475,23 @@ void Game::render() {
     } else if (gameOver) {
         SDL_Rect gameOverRect = {0, 0, CAMERA_WIDTH, CAMERA_HEIGHT};
         SDL_RenderCopy(renderer, gameOverTexture, nullptr, &gameOverRect);
+        std::stringstream timeText;
+        timeText << "Score: " << finalTime / 1000 << "s";
+        SDL_Color textColor = {255, 255, 255, 255};
+        SDL_Texture* timeTexture = createTextTexture(timeText.str(), textColor, largeFont);
+
+        if (timeTexture) {
+            int textWidth, textHeight;
+            SDL_QueryTexture(timeTexture, nullptr, nullptr, &textWidth, &textHeight);
+            SDL_Rect timeRect = {
+                CAMERA_WIDTH/2 - textWidth/2,
+                CAMERA_HEIGHT/2 - 70,
+                textWidth,
+                textHeight
+            };
+            SDL_RenderCopy(renderer, timeTexture, nullptr, &timeRect);
+            SDL_DestroyTexture(timeTexture);
+        }
         SDL_Rect restartButtonRect = {CAMERA_WIDTH / 2 - 150, CAMERA_HEIGHT / 2 + 50, 120, 60};
         SDL_Rect restartButton1Rect = {CAMERA_WIDTH / 2 - 150, CAMERA_HEIGHT / 2 + 50, 120, 60};
         if(isHover1){
@@ -497,13 +534,32 @@ void Game::render() {
         if (bossSpawned && boss.active) {
             SDL_Rect bossRect = {static_cast<int>(boss.x - camera.x), static_cast<int>(boss.y - camera.y), 150, 150};
             SDL_RenderCopy(renderer, bossTextures[currentBossFrame], nullptr, &bossRect);
+            int barWidth = 120;
+            int barHeight = 10;
+            int x = boss.x - camera.x;
+            int y = boss.y - camera.y - 20; // Đặt phía trên boss 20px
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_Rect borderRect = {x, y, barWidth, barHeight};
+            SDL_RenderDrawRect(renderer, &borderRect);
+
+            if (boss.maxHealth > 0) {
+                float healthRatio = static_cast<float>(boss.health) / boss.maxHealth;
+                healthRatio = std::max(0.0f, std::min(healthRatio, 1.0f));
+                int currentWidth = static_cast<int>(healthRatio * barWidth);
+
+                SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+                SDL_Rect healthRect = {x, y, currentWidth, barHeight};
+                SDL_RenderFillRect(renderer, &healthRect);
+            }
+
         }
         Uint32 currentTime = SDL_GetTicks() - startTime; // Tính thời gian đã trôi qua
         Uint32 seconds = currentTime / 1000; // Chuyển đổi sang giây
         std::stringstream timeText;
         timeText << "Time: " << seconds << "s";
         SDL_Color textColor = {255, 255, 255, 255};
-        SDL_Texture* timeTexture = createTextTexture(timeText.str(), textColor);
+        SDL_Texture* timeTexture = createTextTexture(timeText.str(), textColor, font);
         if (timeTexture) {
             int textWidth = 0, textHeight = 0;
             SDL_QueryTexture(timeTexture, nullptr, nullptr, &textWidth, &textHeight);
@@ -540,6 +596,7 @@ void Game::cleanup() {
     Mix_CloseAudio();
     SDL_DestroyWindow(window);
     TTF_CloseFont(font);
+    TTF_CloseFont(largeFont);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();

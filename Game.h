@@ -53,6 +53,7 @@ private:
     SDL_Texture* restartButton1Texture = nullptr;
     SDL_Texture* quitButton1Texture = nullptr;
     TTF_Font* font = nullptr;
+    TTF_Font* largeFont = nullptr;
     Mix_Music* backgroundMusic = nullptr;
     Mix_Chunk* shootSound = nullptr;
 
@@ -80,6 +81,7 @@ private:
     bool isHover1;
     bool isHover2;
     Uint32 startTime;
+    Uint32 finalTime;
 
     // Frame animation
     int currentFrame = 0;
@@ -97,7 +99,7 @@ private:
     void updateBullets();
     void spawnBoss();
     void updateBoss();
-    SDL_Texture* createTextTexture(const std::string& text, SDL_Color color);
+    SDL_Texture* createTextTexture(const std::string& text, SDL_Color color, TTF_Font* useFont);
 };
 
 #endif

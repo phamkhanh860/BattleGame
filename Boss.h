@@ -6,6 +6,7 @@ struct Boss {
     float vx;
     bool active;
     int health;
+    int maxHealth;
 };
 
 #endif

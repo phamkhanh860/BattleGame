@@ -459,7 +459,7 @@
 1743005763 c:\emday\input.h
 	<SDL.h>
 
-1743257861 c:\emday\game.h
+1743838780 c:\emday\game.h
 	<SDL.h>
 	<SDL_mixer.h>
 	<SDL_image.h>
@@ -474,9 +474,9 @@
 
 1743005763 c:\emday\structs.h
 
-1743133799 c:\emday\constants.h
+1743832408 c:\emday\constants.h
 
-1743258118 source:c:\emday\game.cpp
+1743838803 source:c:\emday\game.cpp
 	"Game.h"
 	"Constants.h"
 	<iostream>
@@ -558,7 +558,7 @@
 	"ResourceManager.h"
 	<iostream>
 
-1743257876 c:\emday\resourcemanager.h
+1743837828 c:\emday\resourcemanager.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -573,5 +573,5 @@
 
 1743034638 c:\emday\bullet.h
 
-1743034624 c:\emday\boss.h
+1743831968 c:\emday\boss.h
 
